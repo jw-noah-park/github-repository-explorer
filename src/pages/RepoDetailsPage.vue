@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { formatDate } from "../utils/formatters";
+import { isFavorite, toggleFavorite } from "../utils/favorites";
 
 const route = useRoute();
 const repo = ref(null);
@@ -11,6 +12,8 @@ const errorMessage = ref("");
 const issues = ref([]);
 const issuesLoading = ref(false);
 const issuesError = ref("");
+
+const favorite = ref(false);
 
 const fetchRepository = async () => {
   isLoading.value = true;
@@ -58,6 +61,12 @@ const fetchIssues = async () => {
   } finally {
     issuesLoading.value = false;
   }
+};
+
+const handleFavoriteToggle = () => {
+  if (!repository.value) return;
+
+  favorite.value = toggleFavorite(repository.value);
 };
 
 onMounted(() => {
