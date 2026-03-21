@@ -51,6 +51,7 @@ const handleSearch = async () => {
     repositories.value = [];
     errorMessage.value = "";
     hasSearched.value = false;
+    hasMore.value = false;
     return;
   }
 
@@ -66,52 +67,241 @@ const handleLoadMore = async () => {
 </script>
 
 <template>
-  <div>
-    <h1>GitHub Repository Explorer</h1>
-
-    <form @submit.prevent="handleSearch">
-      <label for="search">Search repository: </label>
+  <div class="search-page">
+    <div class="search-header">
+      <h1>GitHub Repository Explorer</h1>
+      <p>Search repositories and explore their details.</p>
+    </div>
+    <form class="search-form" @submit.prevent="handleSearch">
+      <label for="search" class="sr-only">Search repository: </label>
       <input
         type="text"
         id="search"
         v-model="searchQuery"
         placeholder="Enter a repo name"
       />
-      <button type="submit">Search</button>
+      <button type="submit" class="primary-btn">Search</button>
     </form>
 
-    <p v-if="isLoading && repositories.length === 0">Loading...</p>
-    <p v-else-if="errorMessage">{{ errorMessage }}</p>
-    <p v-else-if="hasSearched && repositories.length === 0">
+    <p v-if="isLoading && repositories.length === 0" class="status-message">
+      Loading...
+    </p>
+    <p v-else-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+    <p
+      v-else-if="hasSearched && repositories.length === 0"
+      class="status-message"
+    >
       No repositories found.
     </p>
 
-    <ul v-if="repositories.length > 0">
+    <ul v-if="repositories.length > 0" class="results-list">
       <li v-for="repo in repositories" :key="repo.id">
-        <RouterLink :to="`/repo/${repo.owner.login}/${repo.name}`">
-          <h2>{{ repo.name }}</h2>
+        <RouterLink
+          :to="`/repo/${repo.owner.login}/${repo.name}`"
+          class="repo-card-link"
+        >
+          <div class="repo-card">
+            <div class="repo-main">
+              <h2>
+                {{ repo.name }}
+              </h2>
+              <p class="repo-description">
+                {{ repo.description || "No description provided." }}
+              </p>
+            </div>
+
+            <div class="repo-meta">
+              <div class="meta-item">
+                <span class="meta-label">Owner: </span>
+                <span>{{ repo.owner.login }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Stars: </span>
+                <span>{{ repo.stargazers_count }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Language: </span>
+                <span>{{ repo.language || "Not specified" }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">updated: </span>
+                <span>{{ formatDate(repo.updated_at) }}</span>
+              </div>
+            </div>
+          </div>
         </RouterLink>
-        <h5>Owner: {{ repo.owner.login }}</h5>
-        <p>{{ repo.description || "No description provided." }}</p>
-        <p>Stars: {{ repo.stargazers_count }}</p>
-        <p>Language: {{ repo.language || "Not specified" }}</p>
-        <p>Last updated: {{ formatDate(repo.updated_at) }}</p>
       </li>
     </ul>
 
-    <button
-      v-if="repositories.length > 0 && hasMore && !isLoading"
-      @click="handleLoadMore"
-    >
-      Load More
-    </button>
-
-    <p
-      v-if="
-        hasSearched && !isLoading && !errorMessage && repositories.length === 0
-      "
-    >
-      No repositories found.
-    </p>
+    <div class="load-more-wrapper" v-if="repositories.length > 0 && hasMore">
+      <button v-if="!isLoading" class="load-more-btn" @click="handleLoadMore">
+        Load More
+      </button>
+      <p v-else class="status-message">Loading more...</p>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.search-page {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.search-header {
+  text-align: center;
+  margin-bottom: 32px;
+  padding: 24px 0 8px;
+}
+
+.search-header h1 {
+  margin: 0 0 12px;
+  font-size: 42px;
+  line-height: 1.1;
+  color: var(--color-text);
+}
+
+.search-header p {
+  max-width: 600px;
+  margin: 0 auto;
+  color: var(--color-text-muted);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.search-form {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.search-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  outline: none;
+}
+
+.search-form input:focus {
+  border-color: var(--color-primary);
+}
+
+.results-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.repo-card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.repo-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 22px 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.repo-card:hover .repo-card {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.repo-main {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.repo-main h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  color: var(--color-text);
+}
+
+.repo-description {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.repo-meta {
+  display: flex;
+  gap: 28px;
+  flex-shrink: 0;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 95px;
+  text-align: left;
+}
+
+.load-more-wrapper {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 768px) {
+  .search-header h1 {
+    font-size: 26px;
+  }
+
+  .search-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-form button {
+    width: 100%;
+  }
+
+  .repo-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .repo-meta {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .meta-item {
+    min-width: 120px;
+  }
+}
+</style>

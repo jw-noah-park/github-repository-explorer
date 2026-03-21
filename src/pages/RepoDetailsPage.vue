@@ -1,10 +1,12 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { formatDate } from "../utils/formatters";
 import { isFavorite, toggleFavorite } from "../utils/favorites";
 
 const route = useRoute();
+const router = useRouter();
+
 const repo = ref(null);
 const isLoading = ref(false);
 const errorMessage = ref("");
@@ -30,6 +32,7 @@ const fetchRepository = async () => {
 
     const data = await res.json();
     repo.value = data;
+    favorite.value = isFavorite(data.id);
   } catch (error) {
     console.error("Details fetch failed:", error);
     errorMessage.value = "Could not load repository details";
@@ -64,9 +67,13 @@ const fetchIssues = async () => {
 };
 
 const handleFavoriteToggle = () => {
-  if (!repository.value) return;
+  if (!repo.value) return;
 
-  favorite.value = toggleFavorite(repository.value);
+  favorite.value = toggleFavorite(repo.value);
+};
+
+const handleBack = () => {
+  router.back();
 };
 
 onMounted(() => {
@@ -76,36 +83,79 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
-    <h1>Repository Details</h1>
+  <div class="details-page">
+    <div class="details-topbar">
+      <button class="back-btn" @click="handleBack">← Back</button>
 
-    <p v-if="isLoading">Loading...</p>
-    <p v-else-if="errorMessage">{{ errorMessage }}</p>
-
-    <div v-else-if="repo">
-      <h2>{{ repo.full_name }}</h2>
-      <p>{{ repo.description || "No description provided." }}</p>
-      <p>Owner: {{ repo.owner.login }}</p>
-      <p>Stars: {{ repo.stargazers_count }}</p>
-      <p>Language: {{ repo.language || "Not specified" }}</p>
-      <p>Forks: {{ repo.forks_count }}</p>
-      <p>Open issues: {{ repo.open_issues_count }}</p>
-      <p>Last updated: {{ formatDate(repo.updated_at) }}</p>
-      <p>
-        <a :href="repo.html_url" target="_blank" rel="noopener noreferrer">
+      <div class="topbar-actions">
+        <a
+          class="github-link"
+          :href="repo.html_url"
+          target="_blank"
+          rel="noopener noreferrer"
+          v-if="repo"
+        >
           View on GitHub
         </a>
-      </p>
 
-      <section>
+        <button v-if="repo" class="favorite-btn" @click="handleFavoriteToggle">
+          {{ favorite ? "★" : "☆" }}
+        </button>
+      </div>
+    </div>
+
+    <p v-if="isLoading" class="status-message">Loading...</p>
+    <p v-else-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+
+    <div v-else-if="repo" class="details-card card">
+      <div class="details-header">
+        <div class="details-title-group">
+          <p class="details-label">Repository Details</p>
+          <h2>{{ repo.full_name }}</h2>
+          <p class="details-description">
+            {{ repo.description || "No description provided." }}
+          </p>
+        </div>
+      </div>
+
+      <div class="details-meta">
+        <div class="meta-box card">
+          <span class="meta-label">Owner</span>
+          <span>{{ repo.owner.login }}</span>
+        </div>
+        <div class="meta-box card">
+          <span class="meta-label">Stars</span>
+          <span>{{ repo.stargazers_count }}</span>
+        </div>
+        <div class="meta-box card">
+          <span class="meta-label">Language</span>
+          <span>{{ repo.language || "Not specified" }}</span>
+        </div>
+        <div class="meta-box card">
+          <span class="meta-label">Forks</span>
+          <span>{{ repo.forks_count }}</span>
+        </div>
+        <div class="meta-box card">
+          <span class="meta-label">Open issues</span>
+          <span>{{ repo.open_issues_count }}</span>
+        </div>
+        <div class="meta-box card">
+          <span class="meta-label">Updated</span>
+          <span>{{ formatDate(repo.updated_at) }}</span>
+        </div>
+      </div>
+
+      <section class="issues-section">
         <h2>Open Issues</h2>
 
-        <p v-if="issuesLoading">Loading issues...</p>
-        <p v-else-if="issuesError">{{ issuesError }}</p>
-        <p v-else-if="issues.length === 0">No open issues found.</p>
+        <p v-if="issuesLoading" class="status-message">Loading issues...</p>
+        <p v-else-if="issuesError" class="error-message">{{ issuesError }}</p>
+        <p v-else-if="issues.length === 0" class="status-message">
+          No open issues found.
+        </p>
 
-        <ul v-else>
-          <li v-for="issue in issues" :key="issue.id">
+        <ul v-else class="issues-list">
+          <li v-for="issue in issues" :key="issue.id" class="issue-item card">
             <a :href="issue.html_url" target="_blank" rel="noopener noreferrer">
               {{ issue.title }}
             </a>
@@ -115,3 +165,150 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.details-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.details-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.back-btn,
+.favorite-btn,
+.github-link {
+  margin-bottom: 20px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.back-btn:hover,
+.github-link:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.favorite-btn {
+  background: var(--color-primary);
+  color: var(--color-surface);
+  border: none;
+}
+
+.favorite-btn:hover {
+  opacity: 0.92;
+}
+
+.details-card {
+  padding: 28px;
+}
+
+.details-header {
+  margin-bottom: 24px;
+}
+
+.details-title-group {
+  min-width: 0;
+}
+
+.details-label {
+  margin: 0 0 8px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.details-header h1 {
+  margin: 0 0 12px;
+  font-size: 34px;
+  line-height: 1.15;
+  color: var(--color-text);
+}
+
+.details-description {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.details-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.meta-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+}
+
+.issues-section h2 {
+  margin: 0 0 16px;
+  color: var(--color-text);
+}
+
+.issues-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.issue-item {
+  padding: 14px 16px;
+}
+
+.issue-item a {
+  color: var(--color-text);
+}
+
+.issue-item a:hover {
+  color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+  .details-topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .topbar-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .details-card {
+    padding: 20px;
+  }
+
+  .details-header h1 {
+    font-size: 28px;
+  }
+
+  .details-meta {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

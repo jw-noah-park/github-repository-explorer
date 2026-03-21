@@ -1,6 +1,12 @@
 :root {
+  --color-text: #111827;
+  --color-text-muted: #6b7280;
+  --color-primary: #329086;
+  --color-border: #e5e7eb;
+  --color-surface: #ffffff;
+
   font-family: Arial, Helvetica, sans-serif;
-  color: #000000;
+  color: var(--color-text);
 }
 
 * {
@@ -10,13 +16,11 @@
 html,
 body,
 #app {
-  margin: 0;
-  padding: 0;
   min-height: 100%;
 }
 
 a {
-  color: #329086;
+  color: var(--color-primary);
   text-decoration: none;
 }
 
@@ -26,10 +30,9 @@ input {
 }
 
 main {
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 32px 20px 48px;
-  text-align: center;
 }
 
 nav {
@@ -37,11 +40,47 @@ nav {
   justify-content: center;
   gap: 20px;
   padding: 20px 0;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--color-border);
   margin-bottom: 40px;
 }
 
 nav a.router-link-active {
-  color: #329086;
+  color: var(--color-primary);
   font-weight: 600;
+}
+
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface);
+}
+
+.primary-btn {
+  padding: 14px 18px;
+  border: none;
+  border-radius: 14px;
+  background: var(--color-primary);
+  color: var(--color-surface);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.primary-btn:hover {
+  opacity: 0.92;
+}
+
+.status-message {
+  color: var(--color-text-muted);
+  margin: 20px 0;
+}
+
+.error-message {
+  color: #b91c1c;
+}
+
+.meta-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
