@@ -72,7 +72,7 @@ const repoMetaItems = computed(() => {
   return [
     { label: "Owner", value: repo.value.owner.login },
     { label: "Stars", value: formatNumber(repo.value.stargazers_count) },
-    { label: "Language", value: repo.value.language },
+    { label: "Language", value: repo.value.language || "Not specified" },
     { label: "Forks", value: formatNumber(repo.value.forks_count) },
     { label: "Open issues", value: formatNumber(repo.value.open_issues_count) },
     { label: "Updated", value: formatDate(repo.value.updated_at) },

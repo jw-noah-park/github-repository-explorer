@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import RepoCard from "../components/RepoCard.vue";
 
 const searchQuery = ref("");
@@ -9,6 +9,7 @@ const errorMessage = ref("");
 const hasSearched = ref(false);
 const page = ref(1);
 const hasMore = ref(false);
+const sortBy = ref("default");
 
 const fetchRepositories = async (pageToLoad = 1) => {
   if (!searchQuery.value.trim()) return;
@@ -22,22 +23,26 @@ const fetchRepositories = async (pageToLoad = 1) => {
     );
 
     if (!res.ok) {
-      throw new Error("Failed to fetch repositories");
+      throw new Error(`GitHub request failed with status ${res.status}`);
     }
 
     const data = await res.json();
+    const items = data.items || [];
+    const linkHeader = res.headers.get("link") || "";
 
     if (pageToLoad === 1) {
-      repositories.value = data.items || [];
+      repositories.value = items;
     } else {
-      repositories.value = [...repositories.value, ...(data.items || [])];
+      repositories.value = [...repositories.value, ...items];
     }
 
-    hasMore.value = (data.items || []).length === 10;
+    hasMore.value = linkHeader.includes('rel="next"');
   } catch (error) {
     console.error("Search failed", error);
-    errorMessage.value = "Something went wrong. Please try again";
+    hasMore.value = false;
+
     if (pageToLoad === 1) {
+      errorMessage.value = "Something went wrong. Please try again";
       repositories.value = [];
     }
   } finally {
@@ -45,12 +50,29 @@ const fetchRepositories = async (pageToLoad = 1) => {
   }
 };
 
+const sortedRepositories = computed(() => {
+  if (sortBy.value === "stars") {
+    return [...repositories.value].sort(
+      (a, b) => b.stargazers_count - a.stargazers_count,
+    );
+  }
+
+  if (sortBy.value === "updated") {
+    return [...repositories.value].sort(
+      (a, b) => new Date(b.updated_at) - new Date(a.updated_at),
+    );
+  }
+
+  return repositories.value;
+});
+
 const handleSearch = async () => {
   if (!searchQuery.value.trim()) {
     repositories.value = [];
     errorMessage.value = "";
     hasSearched.value = false;
     hasMore.value = false;
+    page.value = 1;
     return;
   }
 
@@ -60,6 +82,8 @@ const handleSearch = async () => {
 };
 
 const handleLoadMore = async () => {
+  if (!hasMore.value || isLoading.value) return;
+
   page.value += 1;
   await fetchRepositories(page.value);
 };
@@ -93,17 +117,30 @@ const handleLoadMore = async () => {
       No repositories found.
     </p>
 
+    <select v-if="repositories.length > 0" v-model="sortBy" class="sort-select">
+      <option value="default">Default</option>
+      <option value="stars">Stars</option>
+      <option value="updated">Last updated</option>
+    </select>
+
     <ul v-if="repositories.length > 0" class="results-list">
-      <li v-for="repo in repositories" :key="repo.id">
+      <li v-for="repo in sortedRepositories" :key="repo.id">
         <RepoCard :repo="repo" />
       </li>
     </ul>
 
-    <div class="load-more-wrapper" v-if="repositories.length > 0 && hasMore">
-      <button v-if="!isLoading" class="primary-btn" @click="handleLoadMore">
+    <div
+      class="load-more-wrapper"
+      v-if="repositories.length > 0 && (hasMore || isLoading)"
+    >
+      <button
+        v-if="hasMore && !isLoading"
+        class="primary-btn"
+        @click="handleLoadMore"
+      >
         Load More
       </button>
-      <p v-else class="status-message">Loading more...</p>
+      <p v-else class="status-message load-more-message">Loading more...</p>
     </div>
   </div>
 </template>
@@ -139,7 +176,7 @@ const handleLoadMore = async () => {
   display: flex;
   gap: 12px;
   align-items: center;
-  margin-bottom: 28px;
+  margin-bottom: 16px;
 }
 
 .search-form input {
@@ -166,7 +203,7 @@ const handleLoadMore = async () => {
 }
 
 .load-more-wrapper {
-  margin-top: 24px;
+  margin-top: 20px;
   display: flex;
   justify-content: center;
 }
@@ -181,6 +218,20 @@ const handleLoadMore = async () => {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.load-more-message {
+  min-height: auto;
+  margin: 0;
+}
+
+.sort-select {
+  display: block;
+  margin: 0 0 20px auto;
+  padding: 10px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
 }
 
 @media (max-width: 768px) {
