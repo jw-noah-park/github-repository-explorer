@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { RouterLink } from "vue-router";
-import { formatDate } from "../utils/formatters";
+import { formatDate, formatNumber } from "../utils/formatters";
 
 const searchQuery = ref("");
 const repositories = ref([]);
@@ -117,7 +117,7 @@ const handleLoadMore = async () => {
               </div>
               <div class="meta-item">
                 <span class="meta-label">Stars: </span>
-                <span>{{ repo.stargazers_count }}</span>
+                <span>{{ formatNumber(repo.stargazers_count) }}</span>
               </div>
               <div class="meta-item">
                 <span class="meta-label">Language: </span>
@@ -134,7 +134,7 @@ const handleLoadMore = async () => {
     </ul>
 
     <div class="load-more-wrapper" v-if="repositories.length > 0 && hasMore">
-      <button v-if="!isLoading" class="load-more-btn" @click="handleLoadMore">
+      <button v-if="!isLoading" class="primary-btn" @click="handleLoadMore">
         Load More
       </button>
       <p v-else class="status-message">Loading more...</p>
@@ -219,9 +219,9 @@ const handleLoadMore = async () => {
     transform 0.2s ease;
 }
 
-.repo-card:hover .repo-card {
+.repo-card:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 24px var(--color-border);
 }
 
 .repo-main {

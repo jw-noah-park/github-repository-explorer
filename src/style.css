@@ -44,8 +44,18 @@ nav {
   margin-bottom: 40px;
 }
 
+nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border-radius: 18px;
+  color: var(--color-text);
+}
+
 nav a.router-link-active {
-  color: var(--color-primary);
+  background: #f3f4f6;
+  color: var(--color-text);
   font-weight: 600;
 }
 
@@ -69,9 +79,13 @@ nav a.router-link-active {
   opacity: 0.92;
 }
 
-.status-message {
+.status-message,
+.error-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 240px;
   color: var(--color-text-muted);
-  margin: 20px 0;
 }
 
 .error-message {

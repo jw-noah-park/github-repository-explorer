@@ -88,6 +88,8 @@ onMounted(() => {
       <button class="back-btn" @click="handleBack">← Back</button>
 
       <div class="topbar-actions">
+        <span v-if="favorite" class="favorite-badge">★</span>
+
         <a
           class="github-link"
           :href="repo.html_url"
@@ -99,7 +101,7 @@ onMounted(() => {
         </a>
 
         <button v-if="repo" class="favorite-btn" @click="handleFavoriteToggle">
-          {{ favorite ? "★" : "☆" }}
+          {{ favorite ? "Remove from favorites" : "Add to Favorites" }}
         </button>
       </div>
     </div>
@@ -178,12 +180,12 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .topbar-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
 }
 
@@ -286,6 +288,18 @@ onMounted(() => {
 
 .issue-item a:hover {
   color: var(--color-primary);
+}
+
+.favorite-badge {
+  margin-bottom: 20px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--color-primary);
+  color: var(--color-surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 @media (max-width: 768px) {

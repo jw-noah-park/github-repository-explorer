@@ -2,7 +2,7 @@
 import { ref, onMounted } from "vue";
 import { RouterLink } from "vue-router";
 import { getFavorites } from "../utils/favorites";
-import { formatDate } from "../utils/formatters";
+import { formatDate, formatNumber } from "../utils/formatters";
 
 const favorites = ref([]);
 
@@ -14,7 +14,7 @@ onMounted(() => {
 <template>
   <div class="favorites-page">
     <div class="favorites-header">
-      <h1>Favorites</h1>
+      <h1>Your Repository Picks</h1>
       <p>Saved repositories will appear here.</p>
     </div>
 
@@ -43,7 +43,7 @@ onMounted(() => {
               </div>
               <div class="meta-item">
                 <span class="meta-label">Stars</span>
-                <span>{{ repo.stargazers_count }}</span>
+                <span>{{ formatNumber(repo.stargazers_count) }}</span>
               </div>
               <div class="meta-item">
                 <span class="meta-label">Language</span>
