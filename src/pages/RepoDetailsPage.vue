@@ -1,7 +1,7 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { formatDate } from "../utils/formatters";
+import { formatDate, formatNumber } from "../utils/formatters";
 import { isFavorite, toggleFavorite } from "../utils/favorites";
 
 const route = useRoute();
@@ -66,6 +66,19 @@ const fetchIssues = async () => {
   }
 };
 
+const repoMetaItems = computed(() => {
+  if (!repo.value) return [];
+
+  return [
+    { label: "Owner", value: repo.value.owner.login },
+    { label: "Stars", value: formatNumber(repo.value.stargazers_count) },
+    { label: "Language", value: repo.value.language },
+    { label: "Forks", value: formatNumber(repo.value.forks_count) },
+    { label: "Open issues", value: formatNumber(repo.value.open_issues_count) },
+    { label: "Updated", value: formatDate(repo.value.updated_at) },
+  ];
+});
+
 const handleFavoriteToggle = () => {
   if (!repo.value) return;
 
@@ -121,29 +134,13 @@ onMounted(() => {
       </div>
 
       <div class="details-meta">
-        <div class="meta-box card">
-          <span class="meta-label">Owner</span>
-          <span>{{ repo.owner.login }}</span>
-        </div>
-        <div class="meta-box card">
-          <span class="meta-label">Stars</span>
-          <span>{{ repo.stargazers_count }}</span>
-        </div>
-        <div class="meta-box card">
-          <span class="meta-label">Language</span>
-          <span>{{ repo.language || "Not specified" }}</span>
-        </div>
-        <div class="meta-box card">
-          <span class="meta-label">Forks</span>
-          <span>{{ repo.forks_count }}</span>
-        </div>
-        <div class="meta-box card">
-          <span class="meta-label">Open issues</span>
-          <span>{{ repo.open_issues_count }}</span>
-        </div>
-        <div class="meta-box card">
-          <span class="meta-label">Updated</span>
-          <span>{{ formatDate(repo.updated_at) }}</span>
+        <div
+          v-for="item in repoMetaItems"
+          :key="item.label"
+          class="meta-box card"
+        >
+          <span class="meta-label"> {{ item.label }}</span>
+          <span>{{ item.value }}</span>
         </div>
       </div>
 
@@ -237,7 +234,7 @@ onMounted(() => {
   letter-spacing: 0.05em;
 }
 
-.details-header h1 {
+.details-header h2 {
   margin: 0 0 12px;
   font-size: 34px;
   line-height: 1.15;
@@ -266,6 +263,7 @@ onMounted(() => {
 
 .issues-section h2 {
   margin: 0 0 16px;
+  font-size: 20px;
   color: var(--color-text);
 }
 
@@ -317,7 +315,7 @@ onMounted(() => {
     padding: 20px;
   }
 
-  .details-header h1 {
+  .details-header h2 {
     font-size: 28px;
   }
 

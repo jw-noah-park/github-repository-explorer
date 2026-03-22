@@ -1,7 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import { RouterLink } from "vue-router";
-import { formatDate, formatNumber } from "../utils/formatters";
+import RepoCard from "../components/RepoCard.vue";
 
 const searchQuery = ref("");
 const repositories = ref([]);
@@ -96,40 +95,7 @@ const handleLoadMore = async () => {
 
     <ul v-if="repositories.length > 0" class="results-list">
       <li v-for="repo in repositories" :key="repo.id">
-        <RouterLink
-          :to="`/repo/${repo.owner.login}/${repo.name}`"
-          class="repo-card-link"
-        >
-          <div class="repo-card">
-            <div class="repo-main">
-              <h2>
-                {{ repo.name }}
-              </h2>
-              <p class="repo-description">
-                {{ repo.description || "No description provided." }}
-              </p>
-            </div>
-
-            <div class="repo-meta">
-              <div class="meta-item">
-                <span class="meta-label">Owner: </span>
-                <span>{{ repo.owner.login }}</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label">Stars: </span>
-                <span>{{ formatNumber(repo.stargazers_count) }}</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label">Language: </span>
-                <span>{{ repo.language || "Not specified" }}</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label">updated: </span>
-                <span>{{ formatDate(repo.updated_at) }}</span>
-              </div>
-            </div>
-          </div>
-        </RouterLink>
+        <RepoCard :repo="repo" />
       </li>
     </ul>
 
@@ -199,64 +165,6 @@ const handleLoadMore = async () => {
   gap: 16px;
 }
 
-.repo-card-link {
-  display: block;
-  color: inherit;
-  text-decoration: none;
-}
-
-.repo-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-  padding: 22px 24px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 18px;
-  transition:
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
-}
-
-.repo-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px var(--color-border);
-}
-
-.repo-main {
-  flex: 1;
-  min-width: 0;
-  text-align: left;
-}
-
-.repo-main h2 {
-  margin: 0 0 8px;
-  font-size: 20px;
-  color: var(--color-text);
-}
-
-.repo-description {
-  margin: 0;
-  color: var(--color-text-muted);
-  line-height: 1.5;
-  font-size: 14px;
-}
-
-.repo-meta {
-  display: flex;
-  gap: 28px;
-  flex-shrink: 0;
-}
-
-.meta-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 95px;
-  text-align: left;
-}
-
 .load-more-wrapper {
   margin-top: 24px;
   display: flex;
@@ -287,21 +195,6 @@ const handleLoadMore = async () => {
 
   .search-form button {
     width: 100%;
-  }
-
-  .repo-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .repo-meta {
-    width: 100%;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .meta-item {
-    min-width: 120px;
   }
 }
 </style>

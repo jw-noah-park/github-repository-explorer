@@ -1,8 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { RouterLink } from "vue-router";
 import { getFavorites } from "../utils/favorites";
-import { formatDate, formatNumber } from "../utils/formatters";
+import RepoCard from "../components/RepoCard.vue";
 
 const favorites = ref([]);
 
@@ -24,38 +23,7 @@ onMounted(() => {
 
     <ul v-else class="favorites-list">
       <li v-for="repo in favorites" :key="repo.id">
-        <RouterLink
-          :to="`/repo/${repo.owner.login}/${repo.name}`"
-          class="favorite-card-link"
-        >
-          <div class="favorite-card card">
-            <div class="favorite-main">
-              <h2>{{ repo.name }}</h2>
-              <p class="favorite-description">
-                {{ repo.description || "No description provided." }}
-              </p>
-            </div>
-
-            <div class="favorite-meta">
-              <div class="meta-item">
-                <span class="meta-label">Owner</span>
-                <span>{{ repo.owner.login }}</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label">Stars</span>
-                <span>{{ formatNumber(repo.stargazers_count) }}</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label">Language</span>
-                <span>{{ repo.language || "Not specified" }}</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label">Updated</span>
-                <span>{{ formatDate(repo.updated_at) }}</span>
-              </div>
-            </div>
-          </div>
-        </RouterLink>
+        <RepoCard :repo="repo" />
       </li>
     </ul>
   </div>
@@ -97,79 +65,9 @@ onMounted(() => {
   gap: 16px;
 }
 
-.favorite-card-link {
-  display: block;
-  color: inherit;
-  text-decoration: none;
-}
-
-.favorite-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-  padding: 22px 24px;
-  transition:
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
-}
-
-.favorite-card-link:hover .favorite-card {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-}
-
-.favorite-main {
-  flex: 1;
-  min-width: 0;
-  text-align: left;
-}
-
-.favorite-main h2 {
-  margin: 0 0 8px;
-  font-size: 20px;
-  color: var(--color-text);
-}
-
-.favorite-description {
-  margin: 0;
-  color: var(--color-text-muted);
-  line-height: 1.5;
-  font-size: 14px;
-}
-
-.favorite-meta {
-  display: flex;
-  gap: 28px;
-  flex-shrink: 0;
-}
-
-.meta-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 95px;
-  text-align: left;
-}
-
 @media (max-width: 768px) {
   .favorites-header h1 {
     font-size: 26px;
-  }
-
-  .favorite-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .favorite-meta {
-    width: 100%;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .meta-item {
-    min-width: 120px;
   }
 }
 </style>
