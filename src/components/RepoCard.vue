@@ -107,16 +107,29 @@ defineProps({
   .repo-card {
     flex-direction: column;
     align-items: flex-start;
+    gap: 18px;
+    padding: 18px;
   }
 
   .repo-meta {
     width: 100%;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
   }
 
   .meta-item {
-    min-width: 120px;
+    min-width: 80px;
+    gap: 3px;
+  }
+
+  .meta-label {
+    font-size: 12px;
+  }
+
+  .meta-item span:last-child {
+    font-size: 13px;
   }
 }
 </style>

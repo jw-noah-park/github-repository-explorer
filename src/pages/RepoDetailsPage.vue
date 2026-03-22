@@ -302,13 +302,27 @@ onMounted(() => {
 
 @media (max-width: 768px) {
   .details-topbar {
-    flex-direction: column;
-    align-items: stretch;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .topbar-actions {
-    flex-direction: column;
-    align-items: stretch;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .back-btn,
+  .favorite-btn,
+  .github-link,
+  .favorite-badge {
+    margin-bottom: 0;
   }
 
   .details-card {
@@ -320,7 +334,12 @@ onMounted(() => {
   }
 
   .details-meta {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat();
+    gap: 12px;
+  }
+
+  .meta-box {
+    padding: 14px;
   }
 }
 </style>
