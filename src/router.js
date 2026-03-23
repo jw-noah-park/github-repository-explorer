@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import SearchPage from "./pages/SearchPage.vue";
 import FavoritesPage from "./pages/FavoritesPage.vue";
 import RepoDetailsPage from "./pages/RepoDetailsPage.vue";
@@ -19,7 +19,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes,
 });
 
